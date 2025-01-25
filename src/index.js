@@ -9,5 +9,6 @@ root.render(
   <React.StrictMode>
     {/* <App /> */}
     <StarRating maxRating={5} />
+    <StarRating maxRating={9} size={48} color={"red"} />
   </React.StrictMode>
 );
