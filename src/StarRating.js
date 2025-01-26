@@ -12,12 +12,20 @@ const starContainerStyle = {
   gap: "4px",
 };
 
-const StarRating = ({ maxRating = 5, color = "#FFFF00", size = "34" }) => {
-  const [rating, setRating] = useState(0);
+const StarRating = ({
+  maxRating = 5,
+  color = "#FFFF00",
+  size = "34",
+  messages = [],
+  defaultRating = 0,
+  getMovieRating,
+}) => {
+  const [rating, setRating] = useState(defaultRating);
   const [tempRating, setTempRating] = useState(0);
 
   function handleStarClick(rating) {
     setRating(rating);
+    getMovieRating(rating);
   }
   function handleMouseEnter(tempRating) {
     setTempRating(tempRating);
@@ -54,7 +62,11 @@ const StarRating = ({ maxRating = 5, color = "#FFFF00", size = "34" }) => {
           </span>
         ))}
       </div>
-      <p style={textStyle}>{tempRating || rating || ""}</p>
+      <p style={textStyle}>
+        {messages.length === maxRating
+          ? messages[tempRating ? tempRating - 1 : rating]
+          : tempRating || rating || ""}
+      </p>
     </div>
   );
 };
