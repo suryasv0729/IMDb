@@ -54,6 +54,10 @@ function Loader() {
   return <p className="loader">Loading...</p>;
 }
 
+function ErrorShow({ message }) {
+  return <p className="error">{message}</p>;
+}
+
 function NavBar({ children }) {
   return (
     <nav className="nav-bar">
@@ -202,16 +206,25 @@ export default function App2() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const query = "nun";
+  const [isError, setError] = useState("");
+  const query = "nemo";
   useEffect(function () {
     async function fetchMovies() {
-      setIsLoading(true);
-      const res = await fetch(
-        `http://www.omdbapi.com/?i=tt3896198&apikey=${API_KEY}&s=${query}`
-      );
-      const data = await res.json();
-      setMovies(data.Search);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `http://www.omdbapi.com/?i=tt3896198&apikey=${API_KEY}&s=${query}`
+        );
+        if (!res.ok) throw new Error("can able to fetch your movie data");
+        const data = await res.json();
+        if (data.Response === "False") throw new Error("Movie not found");
+        setMovies(data.Search);
+      } catch (err) {
+        console.log(err.message);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchMovies();
   }, []);
@@ -221,9 +234,13 @@ export default function App2() {
         <SearchInput />
         <NumberResults movies={movies} />
       </NavBar>
-
       <Main className="main">
-        <Box>{isLoading ? <Loader /> : <MoviesList movies={movies} />}</Box>
+        <Box>
+          {/* {isLoading ? <Loader /> : <MoviesList movies={movies} />} */}
+          {isLoading && <Loader />}
+          {!isLoading && !isError && <MoviesList movies={movies} />}
+          {isError && <ErrorShow message={isError} />}
+        </Box>
         <Box>
           <WatchedMoviesListSummary watched={watched} />
           <WatchedMoviesList watched={watched} />
